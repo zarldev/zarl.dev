@@ -7,3 +7,4 @@ package-lock.json
 package.json
 build.date
 git.sha
+*_templ.go

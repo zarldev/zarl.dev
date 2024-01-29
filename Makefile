@@ -5,7 +5,7 @@ run:
 build:
 	@echo "===========[ Building ZarlDev ]==========="
 	@echo "===========[ Tailwind CSS ]==========="
-	@npx tailwindcss -i assets/css/app.css -o assets/css/apptw.css --minify
+	@npx tailwindcss -i assets/css/style.css -o assets/css/app.css --minify
 	@echo "===========[ Templ HTML Templates ]==========="
 	@echo "Templ Templates..."
 	@templ generate
