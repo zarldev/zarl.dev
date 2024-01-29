@@ -1,9 +1,9 @@
 {
   "HTTP": {
-    "Host": "localhost",
+    "Host": "",
     "Port": 8080,
     "RepoConfig": {
-      "Connection": "./zarldotdev.db"
+      "Connection": "./data/zarldotdev.db"
     }
   },
   "Name": "zarldotdev",

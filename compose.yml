@@ -1,0 +1,12 @@
+version: '3'
+
+services:
+  zarldev:
+    container_name: zarldotdev
+    image: 'zarldotdev:latest'
+    ports:
+      - '8080:8080'
+    volumes:
+      - './config:/app/config'
+      - './data:/app/data'
+

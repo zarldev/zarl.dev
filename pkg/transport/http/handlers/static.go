@@ -10,5 +10,5 @@ func NewStaticHandler() *StaticHandler {
 }
 
 func (h *StaticHandler) RegisterRoutes(router *echo.Echo) {
-	router.Static("/static", "assets")
+	router.Static("/static", "./assets")
 }

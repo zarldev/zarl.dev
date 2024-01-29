@@ -5,13 +5,19 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strings"
 
+	"github.com/charmbracelet/lipgloss"
 	"github.com/zarldev/zarldotdev/pkg/transport/http"
 )
 
-//go:generate sh -c "printf %s $(git rev-parse HEAD) > VERSION.txt"
-//go:embed VERSION.txt
-var Commit string
+//go:generate sh -c "printf %s $(git rev-parse HEAD) > git.sha"
+//go:generate sh -c "date > build.date"
+//go:embed git.sha
+var gitsha string
+
+//go:embed build.date
+var builddate string
 
 type App struct {
 	HTTPServer *http.Server
@@ -67,7 +73,6 @@ func loadConfigFromFile(filepath string) (Config, error) {
 	if err != nil {
 		return Config{}, fmt.Errorf("%w: %v", ErrLoadingConfig, err)
 	}
-	fmt.Println("Loaded config from file")
 	return config, nil
 }
 
@@ -89,16 +94,38 @@ func writeConfigToFile(config Config) error {
 	return nil
 }
 
+var logoStyle = lipgloss.NewStyle().
+	Bold(true).
+	Foreground(lipgloss.Color("#7D56F4"))
+var subtitleStyle = lipgloss.NewStyle().
+	Padding(0, 22).
+	Bold(true).
+	Foreground(lipgloss.Color("#2db4ee"))
+
+var shaStyle = lipgloss.NewStyle().
+	Padding(0, 12).
+	Bold(true).
+	Foreground(lipgloss.Color("#3d3d3d"))
+
 const logoStr = `
-   ________   ________  ________  _____       _______  ________  ________ 
-  /__       \/        \/        \/     \    _/       \/        \/    /   \
- /         /    /    /    /    /      /   /    /    /       __/    /    /
+    _______  ________  ________  _____       _______  ________  ________ 
+  _/__     \/        \/        \/     \    _/       \/        \/     /  \
+ /         /    /    /    /    /      /   /    /    /       __/     /   /
 /       __/         /        _/      /__ /         /       __/\        / 
-\________/\___/____/\____/___/\________/ \________/\________/  \______/  
-                =[%s]= =[version: %s]=
-				
+\________/\___/____/\____/___/\________/ \________/\________/  \______/  				
 `
+const subtitle = `[service: %s @ v%s]`
+const sha = `[git sha: %s]`
+const build = `[build date: %s]`
 
 func logo(c Config) {
-	fmt.Printf(logoStr, c.Name, c.Version)
+	fmt.Print(logoStyle.Render(logoStr))
+	fmt.Println()
+	fmt.Print(subtitleStyle.Render(fmt.Sprintf(subtitle, c.Name, c.Version)))
+	fmt.Println()
+	fmt.Print(shaStyle.Render(fmt.Sprintf(sha, gitsha)))
+	fmt.Println()
+	fmt.Print(shaStyle.Render(fmt.Sprintf(build, strings.ReplaceAll(builddate, "\n", ""))))
+	fmt.Println()
+	fmt.Println()
 }

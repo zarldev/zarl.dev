@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	config := app.LoadConfig("./config.json")
+	config := app.LoadConfig("./config/config.json")
 	app, err := app.New(config)
 	if err != nil {
 		fmt.Println(err)

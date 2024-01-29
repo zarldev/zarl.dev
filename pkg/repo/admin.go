@@ -11,6 +11,7 @@ type AdminRepository struct {
 	*sql.DB
 }
 
+// tar extract
 func NewAdminRepository(config Config) (*AdminRepository, error) {
 	db, err := sql.Open("sqlite", config.Connection)
 	if err != nil {
