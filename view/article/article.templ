@@ -1,0 +1,35 @@
+package article
+
+import (
+	"github.com/zarldev/zarldotdev/view/layout"
+	"github.com/zarldev/zarldotdev/view/component/claps"
+)
+
+func HTML(html string) templ.Component {
+	return templ.ComponentFunc(func(ctx context.Context, w io.Writer) (err error) {
+		_, err = io.WriteString(w, html)
+		return
+	})
+}
+
+templ Show(article Article, clapped bool) {
+	@layout.Base(article.Title, "article") {
+		<div class="flex justify-center">
+			<div class="article">
+				<div class="article_header">
+					<h1 class="article_title">{ article.Title }</h1>
+					<h2 class="article_subtitle">{ article.Subtitle }</h2>
+					<img class="article_image" src={ article.Image }/>
+					<h5 class="article_subtitle">
+						{ TimeToRelativeString(article.Created) }
+					</h5>
+					@claps.ClapHeader(article.ID, article.Claps)
+				</div>
+				<div class="article_content">
+					@HTML(article.Content)
+				</div>
+				@claps.ClapButton(article.ID, article.Claps, clapped)
+			</div>
+		</div>
+	}
+}

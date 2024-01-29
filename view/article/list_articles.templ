@@ -1,0 +1,24 @@
+package article
+
+import "github.com/zarldev/zarldotdev/view/layout"
+
+templ ListArticles(articles []Article) {
+	@layout.Base("Articles", "articles") {
+		<div class="articles">
+			<div class="articles_header">
+				<h1 class="articles_title"><h1>My Articles</h1></h1>
+				<h2 class="articles_subtitle">Just some random articles I've written</h2>
+			</div>
+			<div class="article_list overflow-hidden">
+				if  len(articles) == 0 {
+					<p>No articles yet</p>
+				}
+				for _, article := range articles {
+					<div class="article_list_item">
+					@ListItem(article)
+					</div>
+				}
+			</div>
+		</div>
+	}
+}

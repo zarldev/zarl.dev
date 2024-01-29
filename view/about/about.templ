@@ -1,0 +1,66 @@
+package about
+
+import (
+	"github.com/zarldev/zarldotdev/view/layout"
+	"github.com/zarldev/zarldotdev/view/component/tooltip"
+)
+
+templ Show() {
+	@layout.Base("About", "about") {
+		<div class="about">
+			<div class="about_header">
+				
+			<h1>About Me</h1>
+			<h2>just a little summary about me and my interests</h2>
+			</div>
+			<img src="https://www.zarl.dev/_app/immutable/assets/profile.08fda51a.jpg" class="about_image" alt="Steven McCutcheon"/>
+			<p>
+				Hey there! 👋 I'm Steven, I'm a computer software engineer with over a decade of experience in the software industry.
+				Something I love about software development is the diverse industries you get to work in I've had the pleasure to 
+				experience Manufacturing processes while at 
+				<span>
+					@tooltip.Show("Bombardier Aerospace", "2012-2014")
+				</span> to Finance front desk at 
+				<span>
+					@tooltip.Show("CitiGroup","2010-2012")
+				</span>,
+				data feeds while at 
+				<span>
+					@tooltip.Show("CME" , "2014-2015")
+				</span> and payments processing with 
+				<span>
+					@tooltip.Show("Payroc", "2021-2022")
+				</span>. Not to mention Networking and 
+				Automation at 
+				<span>
+					@tooltip.Show("Juniper Networks","2015-2021")
+				</span> and now Cybersecurity at 
+				<span>
+					@tooltip.Show("Synopsys WhiteHat DAST","2022-*")
+				</span> its been an interesting journey that's for sure. 
+				I'm super passionate about staying on top of changes in the industry and I'm always trying to learn new skills and enhance my expertise.
+				I'm totally self-motivated and love pushing myself to to learn things mainly for the sake of learning.
+			</p>
+			<p>
+				In addition to my professional pursuits, I'm passionate about home automation and freestyle drone flying. These hobbies not only serve as a source of enjoyment but also as an extension of my technical interests. 
+				Experimenting with home automation allows me to merge hardware and software, enabling me to automate household tasks and optimize routine around my home. 
+				Whether it's integrating smart devices, setting up home media management system or managing the network-wide PiHole DNS system.  I like finding technical solutions to everyday tasks,
+				Similarly, my fascination with freestyle drone flying is a realm where I get to still be technical but with different type of creativity,
+				trying to master flying freestyle while tinkering with hardware and software modifications to enhance the experience, or just put the thing back together after a crash.
+			</p>
+			<p>
+				As for my professional skills, I know my way around a bunch of different programming languages and technologies, including Golang, Java, .NET, node.js using SQL, and NoSQL databases 
+				I've even worked with Fortran and old school Perl. I'm also pretty handy with front-end technologies like TypeScript, JavaScript, SvelteKit, CSS, and HTML.
+				As with most developers these days DevOps Culture is common so I'm experienced in using containerization technologies like Kubernetes, Docker built on REST or gRPC with Protobuf services.
+				It's not just container creation I can do deployment and management with Kubernetes or docker-compose.  I've moved a fair few systems from legacy deployments to containerised solutions.
+				I've also used Kafka and AMPQ to build some pretty cool fault-tolerant and resilient event-driven libraries and systems for use across teams.
+			</p>
+			<p>
+				I'm also experienced in Linux administration seeing as I run my own home lab with my own list of services including network wide PiHole managed DNS. 
+				With my experience in Juniper I got skills with networking communication technologies like NETCONF, and SNMP but also network configuration like OSPF, LDAP, NAT. 
+				I also got to spend a ton of time building auto-configuration software for virtualised network equipment with the VMX platforms and vSphere.
+				Over the years I have had experience at multiple previous employeers where I got to play around with processing the data feeds common to the finance space.
+			</p>
+		</div>
+	}
+}

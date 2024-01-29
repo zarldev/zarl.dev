@@ -1,0 +1,18 @@
+package index
+
+import "github.com/zarldev/zarldotdev/view/layout"
+
+templ Welcome() {
+	@layout.Base("Welcome", "/") {
+		<div class="welcome">
+			<div class="welcome_header">
+				<h1>Welcome...</h1>
+				<h5>my personal blog</h5>
+			</div>
+			<div class="welcome_content">
+				<img src="/static/img/welcome.png" alt="Welcome" class="w-64 h-64"/>
+				<p>Welcome, this is <a href="/about">my</a> online home for all my random thoughts and ideas. <a href="/articles">Here</a> is some of my latest ramblings.</p>
+			</div>
+		</div>
+	}
+}

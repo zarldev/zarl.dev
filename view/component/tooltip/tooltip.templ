@@ -1,0 +1,73 @@
+package tooltip
+
+import "crypto/rand"
+import "math/big"
+import "fmt"
+
+var (
+	colours = map[int]string{
+		0:  "indigo-500",
+		1:  "red-500",
+		2:  "sky-500",
+		3:  "purple-500",
+		4:  "pink-500",
+		5:  "blue-500",
+		6:  "green-500",
+		7:  "yellow-500",
+		8:  "orange-500",
+		9:  "teal-500",
+		10: "cyan-500",
+	}
+	clen = len(colours)
+)
+
+func randomColour() []string {
+	n, _ := rand.Int(rand.Reader, big.NewInt(int64(clen)))
+	colour := colours[int(n.Int64())]
+	str := fmt.Sprintf("decoration-%s", colour)
+	return []string{str, "tooltip", "underline", "text-gray-300", "hover:text-gray-100"}
+}
+
+func randomColourToolTip() []string {
+	n, _ := rand.Int(rand.Reader, big.NewInt(int64(clen)))
+	colour := colours[int(n.Int64())]
+	str := fmt.Sprintf("bg-%s", colour)
+	return []string{str, "tooltiptext"}
+
+}
+
+templ Show(text, tooltip string) {
+	<style>
+.tooltip {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.tooltip .tooltiptext {
+    visibility: hidden;
+    width: 120px;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+    opacity: 1;
+}
+</style>
+	<span class={ randomColour() }>
+		{ text }
+		<span class={ randomColourToolTip() }>{ tooltip }</span>
+	</span>
+}

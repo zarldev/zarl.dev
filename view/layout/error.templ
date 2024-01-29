@@ -1,0 +1,9 @@
+package layout
+
+templ Error(err error) {
+    @Base("error", "Error") {
+	<div class="alert alert-danger" role="alert">
+		<strong>Error!</strong> { err.Error() }
+	</div>
+    }
+}

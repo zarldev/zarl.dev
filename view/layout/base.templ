@@ -1,0 +1,28 @@
+package layout
+
+templ Base(title string, navPath string) {
+	<html>
+		<head>
+			<script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp"></script>
+			<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/tokyo-night-dark.min.css"/>
+			<link rel="stylesheet" href="/static/css/apptw.css"/>
+			<link rel="stylesheet" href="/static/css/app.css"/>
+			<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+			<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/go.min.js"></script>
+			<script src="https://unpkg.com/htmx.org@1.9.10" integrity="sha384-D1Kt99CQMDuVetoL1lrYwg5t+9QdHe7NLX/SoJYkXDFfX37iInKRy5xLSi8nO7UC" crossorigin="anonymous"></script>
+			<script src="https://kit.fontawesome.com/3451c5bab0.js" crossorigin="anonymous"></script>
+			<script>hljs.highlightAll();</script>
+			<title>{ title }</title>
+		</head>
+		<body>
+		<div class="base_container dark">
+			<div class="base">
+				<header>@Header()</header>
+                <header>@Nav(navPath)</header>
+				<main class="grow">{ children... }</main>
+				<footer>@Footer()</footer>
+			</div>
+		</div>
+		</body>
+	</html>
+}

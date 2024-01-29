@@ -1,0 +1,19 @@
+package layout
+
+import "strings"
+
+func isActive(ref, path string) string {
+	if path == ref || strings.HasPrefix(path, ref) {
+		return "active"
+	}
+	return ""
+}
+
+templ Nav(path string) {
+	<nav>
+		<a href="/about" class={ isActive("about", path) }>About</a>
+		<a href="/contact" class={ isActive("contact", path) }>Contact</a>
+		<a href="/articles" class={ isActive("articles", path) }>Articles</a>
+		<a href="/admin" class={ isActive("admin", path) }>Admin</a>
+	</nav>
+}

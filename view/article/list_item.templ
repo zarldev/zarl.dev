@@ -1,0 +1,70 @@
+package article
+
+import (
+	"strconv"
+	"time"
+	"strings"
+	"github.com/zarldev/zarldotdev/view/component/claps"
+)
+
+func slugURL(slug string) templ.SafeURL {
+	url := templ.SafeURL("/articles/" + slug)
+	return url
+}
+
+func RelativeDateParse(s string) (time.Time, error) {
+	for n := 0; n < 7; n++ {
+		day := time.Now().AddDate(0, 0, -n)
+		dayName := day.Format("Monday")
+		switch n {
+		case 0:
+			dayName = "today"
+		case 1:
+			dayName = "yesterday"
+		}
+		s = strings.Replace(s, dayName+" at", day.Format("2006-01-02"), -1)
+	}
+	return time.Parse("2006-01-02 3:04 PM", s)
+}
+
+func TimeToRelativeString(t time.Time) string {
+	now := time.Now()
+	diff := now.Sub(t)
+	if diff < time.Minute {
+		return "just now"
+	}
+	if diff < time.Hour {
+		return strconv.Itoa(int(diff.Minutes())) + " minutes ago"
+	}
+	if diff < time.Hour*24 {
+		return strconv.Itoa(int(diff.Hours())) + " hours ago"
+	}
+	if diff < time.Hour*24*7 {
+		return strconv.Itoa(int(diff.Hours()/24)) + " days ago"
+	}
+	if diff < time.Hour*24*30 {
+		return strconv.Itoa(int(diff.Hours()/24/7)) + " weeks ago"
+	}
+	if diff < time.Hour*24*365 {
+		return strconv.Itoa(int(diff.Hours()/24/30)) + " months ago"
+	}
+	return strconv.Itoa(int(diff.Hours()/24/365)) + " years ago"
+}
+
+templ ListItem(article Article) {
+	<div class="article_list_item">
+		<div class="article_list_item_body">
+			<a href={ slugURL(article.Slug) }><img src={ article.Image } class="article_image" alt={ article.Title }/></a>
+			<h2 class="article_title">
+				<a href={ slugURL(article.Slug) }>{ article.Title }</a>
+			</h2>
+			<h5 class="article_subtitle">
+				{ article.Subtitle }
+			</h5>
+			<h5 class="article_subtitle text-gray-500">
+				{ TimeToRelativeString(article.Created) }
+			</h5>
+			@claps.ClapHeader(article.ID, article.Claps)
+		</div>
+	</div>
+}

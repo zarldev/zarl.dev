@@ -1,0 +1,151 @@
+package admin
+
+import "github.com/zarldev/zarldotdev/view/layout"
+import "time"
+import "fmt"
+
+func editLink(article Article) string {
+	return fmt.Sprintf("/admin/articles/%d", +article.ID)
+}
+
+func deleteLink(article Article) string {
+	return fmt.Sprintf(editLink(article) + "/delete")
+}
+
+func saveLink(article Article) string {
+	return fmt.Sprintf(editLink(article) + "/save")
+}
+
+templ Articles(articles []Article) {
+	@layout.Base("Admin", "admin") {
+		// <div class="flex flex-col text-center">
+		// 	<div class="flex flex-row justify-center py-5">
+		// 		<form action="/admin/article/new" method="post" class="">
+		// 			<button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 border border-blue-700 rounded">New Article</button>
+		// 		</form>
+		// 	</div>
+		// 	<h1>Articles</h1>
+		// 	<div class="grid grid-cols-5 gap-2 text-center ">
+		// 		<div class="col-span-1 flex flex-col">
+		// 			<h3 class="text-2xl underline text-purple-500">Title</h3>
+		// 			for _, article := range articles {
+		// 				<div class="flex-grow"><span id={ articleID(article) }>{ article.Title }</span></div>
+		// 			}
+		// 		</div>
+		// 		<div class="col-span-1 flex flex-col ">
+		// 			<h3 class="text-2xl underline text-purple-500">Subtitle</h3>
+		// 			for _, article := range articles {
+		// 				<div class="flex-grow"><span id={ articleSub(article) }>{ article.Subtitle }</span></div>
+		// 			}
+		// 		</div>
+		// 		<div class="col-span-1 flex flex-col ">
+		// 			<h3 class="text-2xl underline text-purple-500">Slug</h3>
+		// 			for _, article := range articles {
+		// 				<div class="flex-grow"><span id={ articleSlug(article) }>{ article.Slug }</span></div>
+		// 			}
+		// 		</div>
+		// 		<div class="col-span-1 flex flex-col ">
+		// 			<h3 class="text-2xl underline text-purple-500">Created</h3>
+		// 			for _, article := range articles {
+		// 				<div class="flex-grow"><span id="article_created">{ article.Created.Format(time.RFC822) }</span></div>
+		// 			}
+		// 		</div>
+		// 		<div class="col-span-1 flex flex-col ">
+		// 			<h3 class="text-2xl underline text-purple-500">Actions</h3>
+		// 			for _, article := range articles {
+		// 				<div id={ articleActions(article) } class="flex-grow">
+		// 					<form>
+		// 						<button hx-get={ editLink(article) } hx-target={ articleIDTarget(article) } hx-trigger="click">
+		// 							<i class="fas fa-edit text-2xl text-cyan-500"></i>
+		// 						</button>
+		// 					</form>
+		// 				</div>
+		// 			}
+		// 		</div>
+		// 	</div>
+		// </div>
+		<div class="container mx-auto">
+			<h1 class="center">Articles</h1>
+			<table class="min-w-full">
+				<thead>
+					<tr>
+						<th class="px-6 py-3 border-b-2 border-gray-300 text-center underline  leading-4 text-purple-500 text-2xl tracking-wider">Title</th>
+						<th class="px-6 py-3 border-b-2 border-gray-300 text-center underline leading-4 text-purple-500 text-2xl  tracking-wider">Subtitle</th>
+						<th class="px-6 py-3 border-b-2 border-gray-300 text-center underline leading-4 text-purple-500 text-2xl  tracking-wider">Slug</th>
+						<th class="px-6 py-3 border-b-2 border-gray-300 text-center  underline leading-4 text-purple-500 text-2xl  tracking-wider">Created</th>
+						<th class="px-6 py-3 border-b-2 border-gray-300 text-center  underline leading-4 text-purple-500 text-2xl  tracking-wider"></th>
+					</tr>
+				</thead>
+				<tbody>
+					<!-- BEGIN: articles loop -->
+					for _, article := range articles {
+						<tr key={ article.Slug } class="text-center p-5" id={ articleContainer(article) }>
+						<form id="article_form" action="/" method="POST" >
+							<td class="px-6 py-6 whitespace-no-wrap border-b border-gray-300">
+								<div class=" leading-5 font-medium " id={ articleID(article) }>{ article.Title }</div>
+							</td>
+							<td class="px-6 py-6 whitespace-no-wrap border-b border-gray-300">
+								<div class=" leading-5 " id={ articleSub(article) }>{ article.Subtitle }</div>
+							</td>
+							<td class="px-6 py-6 whitespace-no-wrap border-b border-gray-300">
+								<div class=" leading-5 " id={ articleSlug(article) }>{ article.Slug }</div>
+							</td>
+							<td class="px-6 py-6 whitespace-no-wrap border-b border-gray-300">
+								<div class=" leading-5 ">{ article.Created.Format(time.RFC822) }</div>
+							</td>
+							<td class="px-6 py-6 whitespace-no-wrap border-b border-gray-300">
+								<div id={ articleActions(article) } class=" leading-5 ">
+									<button hx-get={ editLink(article) } hx-target={ articleContainerTarget(article) } hx-trigger="click">
+										<i class="fas fa-edit text-2xl text-cyan-500"></i>
+									</button>
+								</div>
+							</td>
+						</form>
+						</tr>
+					}
+					<!-- END: articles loop -->
+				</tbody>
+			</table>
+		</div>
+	}
+}
+
+func articleContainer(article Article) string {
+	return fmt.Sprintf("article-container-%s", articleID(article))
+}
+
+func articleContainerTarget(article Article) string {
+	return fmt.Sprintf("#%s", articleID(article))
+}
+
+func articleID(article Article) string {
+	return fmt.Sprintf("article-%d", +article.ID)
+}
+
+func articleSub(article Article) string {
+	return fmt.Sprintf("article-%d-sub", +article.ID)
+}
+
+func articleSlug(article Article) string {
+	return fmt.Sprintf("article-%d-slug", +article.ID)
+}
+
+func articleActions(article Article) string {
+	return fmt.Sprintf("article-%d-actions", +article.ID)
+}
+
+templ ArticleRowEdit(article Article) {
+	<form id="article_form" hx-post={ saveLink(article) } hx-target={ articleContainerTarget(article) } hx-swap="outerHTML" hx-trigger="target:#save_button">
+	<input hx-swap-oob="true" id={ articleID(article) } type="text" name="title" value={ article.Title } class="w-full h-full text-black"/>
+	<input hx-swap-oob="true" id={ articleSub(article) } type="text" name="subtitle" value={ article.Subtitle } class="w-full h-full text-black "/>
+	<input hx-swap-oob="true" id={ articleSlug(article) } type="text" name="slug" value={ article.Slug } class="w-full h-full text-black "/>
+	<div id={ articleActions(article) } class="flex-grow" hx-swap-oob="true">
+		<button id="save_button">
+			<i class="fas fa-save text-2xl text-blue-500"></i>
+		</button>
+		<button hx-get={ deleteLink(article) } hx-trigger="click">
+			<i class="fas fa-trash text-2xl text-red-500"></i>
+		</button>
+	</div>
+	</form>
+}
