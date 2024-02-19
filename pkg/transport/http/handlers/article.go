@@ -19,7 +19,11 @@ type ArticleHandler struct {
 }
 
 func NewArticleHandler(config repo.Config) (*ArticleHandler, error) {
-	ar, err := repo.NewArticleRepository(config)
+	conn, err := repo.NewConnection(config)
+	if err != nil {
+		return nil, err
+	}
+	ar, err := repo.NewArticleRepository(conn)
 	if err != nil {
 		return nil, err
 	}

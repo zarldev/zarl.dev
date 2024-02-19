@@ -1,7 +1,8 @@
 package service
 
 import (
-	"math/rand"
+	"crypto/rand"
+	"math/big"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -14,18 +15,23 @@ func NewHashedPassword(pass string) (string, error) {
 	return string(bcryptPassword), nil
 }
 
-func RandomUsernameAndHashedPassword() (string, string) {
+func AdminPassCrypted() (string, string, string) {
 	username := randomString(16)
 	password := randomString(16)
-	password, _ = NewHashedPassword(password)
-	return username, password
+	hashedPassword, _ := NewHashedPassword(password)
+	return username, password, hashedPassword
 }
 
 func randomString(n int) string {
 	const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 	b := make([]byte, n)
 	for i := range b {
-		b[i] = letters[rand.Intn(len(letters))]
+		max := big.NewInt(int64(len(letters)))
+		randIndex, err := rand.Int(rand.Reader, max)
+		if err != nil {
+			return ""
+		}
+		b[i] = letters[randIndex.Int64()]
 	}
 	return string(b)
 }

@@ -10,16 +10,12 @@ import (
 )
 
 type ArticleRepository struct {
-	*sql.DB
+	conn *Connection
 }
 
-func NewArticleRepository(config Config) (*ArticleRepository, error) {
-	db, err := sql.Open("sqlite", config.Connection)
-	if err != nil {
-		return nil, fmt.Errorf("failed to open db: %w", err)
-	}
-	ar := &ArticleRepository{db}
-	err = ar.createTable()
+func NewArticleRepository(conn *Connection) (*ArticleRepository, error) {
+	ar := &ArticleRepository{conn}
+	err := ar.createTable()
 	if err != nil {
 		return nil, err
 	}
@@ -86,7 +82,7 @@ func timeFrom(timeStr string) time.Time {
 }
 
 func (r *ArticleRepository) createTable() error {
-	_, err := r.Exec(`
+	_, err := r.conn.write.Exec(`
 		CREATE TABLE IF NOT EXISTS articles (
 			id serial PRIMARY KEY NOT NULL,
 			slug text NOT NULL,
@@ -107,7 +103,7 @@ func (r *ArticleRepository) createTable() error {
 }
 
 func (r *ArticleRepository) CreateArticle(a *ArticleRow) error {
-	_, err := r.Exec(`
+	_, err := r.conn.write.Exec(`
 		INSERT INTO articles (slug, title, subtitle, body, markdown_body, image, published)
 		VALUES ($1, $2, $3, $4, $5, $6, $7);
 	`, a.Slug, a.Title, a.Subtitle, a.Body, a.MarkdownBody, a.Image, a.Published)
@@ -118,7 +114,7 @@ func (r *ArticleRepository) CreateArticle(a *ArticleRow) error {
 }
 
 func (r *ArticleRepository) GetArticleBySlug(slug string) (*ArticleRow, error) {
-	row := r.QueryRow(`SELECT a.id, a.slug, a.title, a.subtitle, a.body, a.markdown_body, a.created, a.updated, a.image, a.published, c.count AS claps
+	row := r.conn.read.QueryRow(`SELECT a.id, a.slug, a.title, a.subtitle, a.body, a.markdown_body, a.created, a.updated, a.image, a.published, c.count AS claps
 	FROM articles AS a
 	LEFT JOIN claps AS c ON a.id = c.article_id
 	WHERE a.slug = $1 ORDER BY a.id DESC`, slug)
@@ -144,7 +140,7 @@ func rowsToArticleRow(rows *sql.Rows) (*ArticleRow, error) {
 }
 
 func (r *ArticleRepository) GetArticleByID(id int) (*ArticleRow, error) {
-	row := r.QueryRow(`SELECT a.id, a.slug, a.title, a.subtitle, a.body, a.markdown_body, a.created, a.image, a.published c.count AS claps
+	row := r.conn.read.QueryRow(`SELECT a.id, a.slug, a.title, a.subtitle, a.body, a.markdown_body, a.created, a.image, a.published c.count AS claps
 	FROM articles AS a
 	LEFT JOIN claps AS c ON a.id = c.article_id
 	WHERE a.id = $1 ORDER BY a.id DESC`, id)
@@ -152,7 +148,7 @@ func (r *ArticleRepository) GetArticleByID(id int) (*ArticleRow, error) {
 }
 
 func (r *ArticleRepository) GetPublishedArticles() ([]*ArticleRow, error) {
-	rows, err := r.Query(`
+	rows, err := r.conn.read.Query(`
 	SELECT a.id, a.slug, a.title, a.subtitle, a.body, a.markdown_body, a.created, a.updated, a.image, a.published, c.count AS claps
 	FROM articles AS a 
 	LEFT JOIN claps AS c ON a.id = c.article_id WHERE a.published = 'true'
@@ -161,7 +157,11 @@ func (r *ArticleRepository) GetPublishedArticles() ([]*ArticleRow, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to get articles: %w", err)
 	}
-	defer rows.Close()
+	defer func() {
+		if err := rows.Close(); err != nil {
+			fmt.Println(err)
+		}
+	}()
 
 	articles, err := articleRowsFromRows(rows)
 	if err != nil {
@@ -183,7 +183,7 @@ func articleRowsFromRows(rows *sql.Rows) ([]*ArticleRow, error) {
 }
 
 func (r *ArticleRepository) UpdateArticle(a *ArticleRow) error {
-	_, err := r.Exec(`
+	_, err := r.conn.write.Exec(`
 		UPDATE articles SET slug = $1, title = $2, subtitle = $3, body = $4, markdown_body = $5, image = $6, updated = current_timestamp 
 		WHERE id = $7;
 	`, a.Slug, a.Title, a.Subtitle, a.Body, a.MarkdownBody, a.Image, a.ID)

@@ -41,7 +41,10 @@ func NewDefault() (*Server, error) {
 		Router: echo.New(),
 		Config: defaultConfig(),
 	}
-	svc.RegisterRoutes()
+	err := svc.RegisterRoutes()
+	if err != nil {
+		return nil, err
+	}
 	return svc, nil
 }
 

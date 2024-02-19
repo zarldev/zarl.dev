@@ -14,6 +14,12 @@ func HTML(html string) templ.Component {
 
 templ Show(article Article, clapped bool) {
 	@layout.Base(article.Title, "article") {
+		<meta property="og:title" content={ article.Title }/>
+		<meta property="og:site_name" content="https://www.zarl.dev"/>
+		<meta property="og:url" content={ article.Slug }/>
+		<meta property="og:description" content={ article.Subtitle }/>
+		<meta property="og:type" content="article"/>
+		<meta property="og:image" content={ article.Image }/>
 		<div class="flex justify-center">
 			<div class="article">
 				<div class="article_header">

@@ -4,6 +4,12 @@ import "github.com/zarldev/zarldotdev/view/layout"
 
 templ ListArticles(articles []Article) {
 	@layout.Base("Articles", "articles") {
+		<meta property="og:title" content="zarl.dev articles"/>
+		<meta property="og:site_name" content="https://www.zarl.dev"/>
+		<meta property="og:url" content="https://www.zarl.dev/articles"/>
+		<meta property="og:description" content="zarl.dev articles"/>
+		<meta property="og:type" content="article"/>
+		<meta property="og:image" content=""/>
 		<div class="articles">
 			<div class="articles_header">
 				<h1 class="articles_title"><h1>My Articles</h1></h1>

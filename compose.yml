@@ -9,4 +9,5 @@ services:
     volumes:
       - './config:/app/config'
       - './data:/app/data'
+      - './assets:/app/assets'
 

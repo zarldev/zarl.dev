@@ -1,10 +1,12 @@
 package app
 
 import (
+	// embed for git sha and build date
 	_ "embed"
 	"encoding/json"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
@@ -61,12 +63,18 @@ func LoadConfig(filepath string) Config {
 
 var ErrLoadingConfig = fmt.Errorf("error loading config from file")
 
-func loadConfigFromFile(filepath string) (Config, error) {
-	jsonFile, err := os.Open(filepath)
+func loadConfigFromFile(fpath string) (Config, error) {
+	fp := filepath.Clean(fpath)
+	jsonFile, err := os.Open(fp)
 	if err != nil {
 		return Config{}, fmt.Errorf("%w: %v", ErrLoadingConfig, err)
 	}
-	defer jsonFile.Close()
+	defer func() {
+		if err := jsonFile.Close(); err != nil {
+			fmt.Println(err)
+		}
+	}()
+
 	var config Config
 	jsonParser := json.NewDecoder(jsonFile)
 	err = jsonParser.Decode(&config)
@@ -87,7 +95,7 @@ func writeConfigToFile(config Config) error {
 	if err != nil {
 		return fmt.Errorf("%w: %v", ErrWritingConfig, err)
 	}
-	err = os.WriteFile("./config.json", json, 0644)
+	err = os.WriteFile("./config.json", json, 0600)
 	if err != nil {
 		return fmt.Errorf("%w: %v", ErrWritingConfig, err)
 	}

@@ -13,11 +13,12 @@ import (
 	"github.com/zarldev/zarldotdev/view/admin"
 	"github.com/zarldev/zarldotdev/view/article"
 	"github.com/zarldev/zarldotdev/view/layout"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type AdminHandler struct {
 	ArticleRepo *repo.ArticleRepository
-	AdminRepo   *repo.AdminRepository
+	AdminRepo   repo.AdminsRepository
 }
 
 func RowToArticle(a repo.ArticleRow) article.Article {
@@ -33,17 +34,21 @@ func RowToArticle(a repo.ArticleRow) article.Article {
 var ErrInitialisingHandler = fmt.Errorf("error initialising admin handler")
 
 func NewAdminHandler(config repo.Config) (*AdminHandler, error) {
-	ar, err := repo.NewArticleRepository(config)
+	conn, err := repo.NewConnection(config)
 	if err != nil {
 		return nil, fmt.Errorf("%w: %v", ErrInitialisingHandler, err)
 	}
-	adr, err := repo.NewAdminRepository(config)
+	ar, err := repo.NewArticleRepository(conn)
+	if err != nil {
+		return nil, fmt.Errorf("%w: %v", ErrInitialisingHandler, err)
+	}
+	adr, err := repo.NewAdminRepository(conn)
 	if err != nil {
 		return nil, fmt.Errorf("%w: %v", ErrInitialisingHandler, err)
 	}
 	return &AdminHandler{
 		ArticleRepo: ar,
-		AdminRepo:   adr,
+		AdminRepo:   repo.WithLogging(adr),
 	}, nil
 }
 
@@ -175,7 +180,7 @@ func (h *AdminHandler) AdminLogin(c echo.Context) error {
 	if err != nil {
 		return c.Redirect(302, "/admin")
 	}
-	if password != login.Password {
+	if !passwordMatches(login.Password, password) {
 		return c.Redirect(302, "/admin")
 	}
 	cookie := &http.Cookie{
@@ -184,6 +189,10 @@ func (h *AdminHandler) AdminLogin(c echo.Context) error {
 	}
 	c.SetCookie(cookie)
 	return c.Redirect(302, "/admin/articles")
+}
+
+func passwordMatches(password, hash string) bool {
+	return bcrypt.CompareHashAndPassword([]byte(hash), []byte(password)) == nil
 }
 
 func (h *AdminHandler) AdminArticlesShow(c echo.Context) error {

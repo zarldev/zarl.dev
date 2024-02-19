@@ -2,12 +2,14 @@ package main
 
 import (
 	"fmt"
+	"path/filepath"
 
 	"github.com/zarldev/zarldotdev/pkg/app"
 )
 
 func main() {
-	config := app.LoadConfig("./config/config.json")
+	fp := filepath.Join("config", "config.json")
+	config := app.LoadConfig(fp)
 	app, err := app.New(config)
 	if err != nil {
 		fmt.Println(err)

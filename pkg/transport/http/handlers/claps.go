@@ -16,7 +16,11 @@ type ClapsHandler struct {
 }
 
 func NewClapsHandler(config repo.Config) (*ClapsHandler, error) {
-	cr, err := repo.NewClapsRepository(config)
+	conn, err := repo.NewConnection(config)
+	if err != nil {
+		return nil, err
+	}
+	cr, err := repo.NewClapsRepository(conn)
 	if err != nil {
 		return nil, err
 	}

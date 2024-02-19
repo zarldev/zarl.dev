@@ -1,58 +1,68 @@
 package repo
 
 import (
-	"database/sql"
 	"fmt"
 
 	svc "github.com/zarldev/zarldotdev/pkg/service"
 )
 
-type AdminRepository struct {
-	*sql.DB
+type AdminsRepository interface {
+	Get(username string) (string, error)
+	ListAdmins() ([]string, error)
+	Set(username, password string) error
+	Delete(username string) error
+}
+
+type SQLiteAdminRepo struct {
+	conn *Connection
 }
 
 // tar extract
-func NewAdminRepository(config Config) (*AdminRepository, error) {
-	db, err := sql.Open("sqlite", config.Connection)
-	if err != nil {
-		return nil, err
-	}
-	ar := &AdminRepository{db}
-	err = ar.createTable()
+func NewAdminRepository(conn *Connection) (*SQLiteAdminRepo, error) {
+	ar := &SQLiteAdminRepo{conn: conn}
+	err := ar.createTable()
 	if err != nil {
 		return nil, err
 	}
 	if list, err := ar.ListAdmins(); err != nil || len(list) == 0 {
-		admin, pass := svc.RandomUsernameAndHashedPassword()
-		fmt.Printf("Created admin user: %s with password: %s\n", admin, pass)
+		admin, pass, cryptPass := svc.AdminPassCrypted()
+		fmt.Printf("Created admin user: %s with password: %s - bcrypted to %s \n", admin, pass, cryptPass)
+		err := ar.Set(admin, cryptPass)
+		if err != nil {
+			return nil, err
+		}
 	}
-
 	return ar, nil
 }
 
-func (a *AdminRepository) createTable() error {
-	_, err := a.Exec("CREATE TABLE IF NOT EXISTS admin (username TEXT PRIMARY KEY, password TEXT)")
+func (a *SQLiteAdminRepo) createTable() error {
+	d, err := a.conn.write.Exec("CREATE TABLE IF NOT EXISTS admin (username TEXT PRIMARY KEY, password TEXT)")
+	fmt.Println(d)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (a *AdminRepository) Get(username string) (string, error) {
+func (a *SQLiteAdminRepo) Get(username string) (string, error) {
 	var password string
-	err := a.QueryRow("SELECT password FROM admin WHERE username = ?", username).Scan(&password)
+	err := a.conn.read.QueryRow("SELECT password FROM admin WHERE username = ?", username).Scan(&password)
 	if err != nil {
 		return "", err
 	}
 	return password, nil
 }
 
-func (a *AdminRepository) ListAdmins() ([]string, error) {
-	rows, err := a.Query("SELECT username FROM admin")
+func (a *SQLiteAdminRepo) ListAdmins() ([]string, error) {
+	rows, err := a.conn.read.Query("SELECT username FROM admin")
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() {
+		if err := rows.Close(); err != nil {
+			fmt.Println(err)
+		}
+	}()
 	var admins []string
 	for rows.Next() {
 		var admin string
@@ -65,16 +75,16 @@ func (a *AdminRepository) ListAdmins() ([]string, error) {
 	return admins, nil
 }
 
-func (a *AdminRepository) Set(username, password string) error {
-	_, err := a.Exec("INSERT INTO admin (username, password) VALUES (?, ?) ON CONFLICT(username) DO UPDATE SET password = ?", username, password, password)
+func (a *SQLiteAdminRepo) Set(username, password string) error {
+	_, err := a.conn.write.Exec("INSERT INTO admin (username, password) VALUES (?, ?) ON CONFLICT(username) DO UPDATE SET password = ?", username, password, password)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (a *AdminRepository) Delete(username string) error {
-	_, err := a.Exec("DELETE FROM admin WHERE username = ?", username)
+func (a *SQLiteAdminRepo) Delete(username string) error {
+	_, err := a.conn.write.Exec("DELETE FROM admin WHERE username = ?", username)
 	if err != nil {
 		return err
 	}

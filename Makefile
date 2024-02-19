@@ -1,7 +1,7 @@
 run:
 	@./dist/zarldotdev
+	@brave http://localhost:8080
 
-# Path: Makefile
 build:
 	@echo "===========[ Building ZarlDev ]==========="
 	@echo "===========[ Tailwind CSS ]==========="
@@ -13,10 +13,10 @@ build:
 	@go generate ./...
 	@echo "===========[ Binary ]==========="
 	@go build -o dist/zarldotdev ./cmd/zarldotdev.go
-	@ls -lah dist/zarldotdev | awk '{print "Location:" $$9, "Size:" $$5}' | column -t	
+	@ls -lah dist/zarldotdev | awk '{print "Location:" $$9, "Size:" $$5}' | column -t
 	@echo "===========[ DONE ]==========="
 
-docker:
+docker-build:
 	@echo "===========[ Building ZarlDev Docker Image ]==========="
 	@echo "Building Docker Image..."
 	@docker build -t zarldotdev:latest . --no-cache
@@ -34,3 +34,11 @@ docker-stop:
 	@echo "Stopping Docker Image..."
 	@docker compose down
 	@echo "===========[ DONE ]==========="
+
+docker-publish : docker-build
+	@echo "===========[ Publishing ZarlDev Docker Image ]==========="
+	@echo "Publishing Docker Image..."
+	@docker tag zarldotdev:latest ghcr.io/zarldev/zarldotdev:latest
+	@docker push ghcr.io/zarldev/zarldotdev:latest
+	@echo "===========[ DONE ]==========="
+

@@ -22,7 +22,7 @@ func countString(count int) string {
 templ ClapHeader(id, count int) {
 	<div class="clap_container flex flex-col">
 		<div class="">
-			<span>👏</span>
+			<span class="hands">👏</span>
 			<span class="count" id="header_count" hx-swap-oob="true">({ countString(count) })</span>
 		</div>
 	</div>

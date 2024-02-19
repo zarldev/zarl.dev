@@ -1,5 +1,9 @@
 *.db
+.vscode
 /dist
+/assets/img
+/assets/css/app.css
+/assets/favicon
 /tmp
 node_modules
 .air.toml
