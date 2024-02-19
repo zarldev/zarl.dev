@@ -201,7 +201,7 @@ func (h *AdminHandler) AdminLogin(c echo.Context) error {
 		return c.Redirect(302, "/admin")
 	}
 
-	expires := time.Now().Add(5 * time.Minute)
+	expires := time.Now().Add(30 * time.Minute)
 	claims := &Claims{
 		Admin: login.Username,
 		RegisteredClaims: jwt.RegisteredClaims{
