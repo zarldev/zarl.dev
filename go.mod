@@ -4,6 +4,7 @@ go 1.21.4
 
 require (
 	github.com/charmbracelet/lipgloss v0.9.1
+	github.com/golang-jwt/jwt/v5 v5.2.0
 	github.com/labstack/echo/v4 v4.11.4
 )
 

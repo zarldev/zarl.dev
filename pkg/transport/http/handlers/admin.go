@@ -3,8 +3,11 @@ package handlers
 import (
 	"fmt"
 	"net/http"
+	"os"
 	"strconv"
+	"time"
 
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/gomarkdown/markdown"
 	"github.com/gomarkdown/markdown/html"
 	"github.com/gomarkdown/markdown/parser"
@@ -15,6 +18,8 @@ import (
 	"github.com/zarldev/zarldotdev/view/layout"
 	"golang.org/x/crypto/bcrypt"
 )
+
+var key = []byte(os.Getenv("ADMIN_JWT_KEY"))
 
 type AdminHandler struct {
 	ArticleRepo *repo.ArticleRepository
@@ -71,8 +76,15 @@ func (h *AdminHandler) AdminAuth(next echo.HandlerFunc) echo.HandlerFunc {
 		if err != nil {
 			return c.Redirect(302, "/admin")
 		}
-		_, err = h.AdminRepo.Get(cookie.Value)
+		tokenStr := cookie.Value
+		claims := &Claims{}
+		token, err := jwt.ParseWithClaims(tokenStr, claims, func(token *jwt.Token) (any, error) {
+			return key, nil
+		})
 		if err != nil {
+			return c.Redirect(302, "/admin")
+		}
+		if !token.Valid {
 			return c.Redirect(302, "/admin")
 		}
 		return next(c)
@@ -171,6 +183,11 @@ type AdminLogin struct {
 	Password string `form:"password"`
 }
 
+type Claims struct {
+	Admin string `json:"admin"`
+	jwt.RegisteredClaims
+}
+
 func (h *AdminHandler) AdminLogin(c echo.Context) error {
 	var login AdminLogin
 	if err := c.Bind(&login); err != nil {
@@ -183,9 +200,23 @@ func (h *AdminHandler) AdminLogin(c echo.Context) error {
 	if !passwordMatches(login.Password, password) {
 		return c.Redirect(302, "/admin")
 	}
+
+	expires := time.Now().Add(5 * time.Minute)
+	claims := &Claims{
+		Admin: login.Username,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(expires),
+		},
+	}
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	signed, err := token.SignedString(key)
+	if err != nil {
+		return c.Redirect(302, "/admin")
+	}
 	cookie := &http.Cookie{
-		Name:  "admin",
-		Value: login.Username,
+		Name:    "admin",
+		Value:   signed,
+		Expires: expires,
 	}
 	c.SetCookie(cookie)
 	return c.Redirect(302, "/admin/articles")
