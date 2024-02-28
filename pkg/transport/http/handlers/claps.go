@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"github.com/zarldev/zarldotdev/pkg/repo"
 	"github.com/zarldev/zarldotdev/view/component/claps"
 )
@@ -30,9 +31,10 @@ func NewClapsHandler(config repo.Config) (*ClapsHandler, error) {
 }
 
 func (h *ClapsHandler) RegisterRoutes(router *echo.Echo) {
-	router.GET("/claps/:id", h.GetInitialClaps)
-	router.POST("/claps/:id", h.AddClap)
-
+	clapsGroup := router.Group("/claps")
+	clapsGroup.Use(middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(1)))
+	clapsGroup.GET("/:id", h.GetInitialClaps)
+	clapsGroup.POST("/:id", h.AddClap)
 }
 
 func (h *ClapsHandler) GetInitialClaps(c echo.Context) error {
